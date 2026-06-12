@@ -1,0 +1,42 @@
+body{
+    background-color: #f4f6f9;
+    font-family: Arial, sans-serif;
+}
+
+h1{
+    color:#1f4e79;
+}
+
+.dashboard-card{
+    border:none;
+    border-radius:15px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+    transition:0.3s;
+}
+
+.dashboard-card:hover{
+    transform:translateY(-5px);
+}
+
+.card-body{
+    text-align:center;
+}
+
+.card-body h5{
+    color:#666;
+}
+
+.card-body h2{
+    color:#1f4e79;
+    font-weight:bold;
+}
+
+.btn-primary{
+    background:#1f4e79;
+    border:none;
+    padding:12px 30px;
+}
+
+.btn-primary:hover{
+    background:#16395a;
+}
