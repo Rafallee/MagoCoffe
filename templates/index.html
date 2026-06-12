@@ -118,6 +118,42 @@
 
     </div>
 </div>
+
+<div class="card mt-4 dashboard-card">
+    <div class="card-body">
+
+        <h3 class="mb-4">
+            📊 Distribusi Kategori
+        </h3>
+
+        <table class="table table-bordered">
+
+            <thead>
+                <tr>
+                    <th>Kategori</th>
+                    <th>Jumlah Terjual</th>
+                    <th>Revenue</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in kategori %}
+
+                <tr>
+                    <td>{{ item['Kategori'] }}</td>
+                    <td>{{ item['jumlah_terjual'] }}</td>
+                    <td>Rp {{ "{:,.0f}".format(item['total_revenue']) }}</td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
     </div>
 
 </body>
