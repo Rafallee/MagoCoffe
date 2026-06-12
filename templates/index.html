@@ -154,6 +154,258 @@
 
     </div>
 </div>
+
+<div class="card mt-4 dashboard-card">
+    <div class="card-body">
+
+        <h3 class="mb-4">
+            🔮 Prediksi Menu Juni–Juli 2026
+        </h3>
+
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>Menu</th>
+                    <th>Total Mei</th>
+                    <th>Slope</th>
+                    <th>Growth %</th>
+                    <th>W6</th>
+                    <th>W7</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for row in forecast %}
+
+                <tr>
+
+                    <td>{{ row['Menu'] }}</td>
+
+                    <td>{{ row['Total Mei'] }}</td>
+
+                    <td>{{ row['Slope'] }}</td>
+
+                    <td>{{ row['Growth'] }}</td>
+
+                    <td>{{ row['Proyeksi W6'] }}</td>
+
+                    <td>{{ row['Proyeksi W7'] }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+<div class="card mt-4 dashboard-card">
+
+    <div class="card-body">
+
+        <h3 class="mb-4">
+            🏆 Top 10 BI Score
+        </h3>
+
+        <table class="table table-striped">
+
+            <thead>
+
+                <tr>
+
+                    <th>Menu</th>
+
+                    <th>Total Mei</th>
+
+                    <th>Slope</th>
+
+                    <th>Growth</th>
+
+                    <th>BI Score</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for row in score %}
+
+                <tr>
+
+                    <td>{{ row['Menu'] }}</td>
+
+                    <td>{{ row['Total Mei'] }}</td>
+
+                    <td>{{ row['Slope'] }}</td>
+
+                    <td>{{ row['Growth'] }}</td>
+
+                    <td>
+
+                        <strong>
+
+                            {{ row['Skor BI'] }}
+
+                        </strong>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div class="card mt-4 dashboard-card">
+
+    <div class="card-body">
+
+        <h3>
+            💡 Rekomendasi Bisnis
+        </h3>
+
+        <ul class="text-start">
+
+            {% for item in recommendation %}
+
+            <li>{{ item }}</li>
+
+            {% endfor %}
+
+        </ul>
+
+    </div>
+
+</div>
+
+<div class="card mt-4 dashboard-card">
+
+    <div class="card-body">
+
+        <h3 class="mb-4">
+            ⏰ Peak Hour Analysis
+        </h3>
+
+        <h5>
+            Jam Tersibuk:
+            <strong>{{ peak_hour }}:00</strong>
+        </h5>
+
+        <table class="table table-striped mt-3">
+
+            <thead>
+
+                <tr>
+
+                    <th>Jam</th>
+
+                    <th>Revenue</th>
+
+                    <th>Transaksi</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for row in hourly %}
+
+                <tr>
+
+                    <td>{{ row['Jam'] }}:00</td>
+
+                    <td>
+                        Rp {{ "{:,.0f}".format(row['revenue']) }}
+                    </td>
+
+                    <td>
+                        {{ row['transaksi'] }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<div class="card mt-4 dashboard-card">
+
+    <div class="card-body">
+
+        <h3>
+            📈 Tren Mingguan Top 5 Menu
+        </h3>
+
+        <table class="table table-striped">
+
+            <thead>
+
+                <tr>
+
+                    <th>Minggu</th>
+
+                    <th>Es Kopi Susu</th>
+
+                    <th>Dirty Latte</th>
+
+                    <th>Americano (Ice)</th>
+
+                    <th>Matcha Latte</th>
+
+                    <th>French Fries</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for row in weekly_menu %}
+
+                <tr>
+
+                    <td>{{ row['Minggu'] }}</td>
+
+                    <td>{{ row.get('Es Kopi Susu',0) }}</td>
+
+                    <td>{{ row.get('Dirty Latte',0) }}</td>
+
+                    <td>{{ row.get('Americano (Ice)',0) }}</td>
+
+                    <td>{{ row.get('Matcha Latte',0) }}</td>
+
+                    <td>{{ row.get('French Fries with Truffle Oil',0) }}</td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
     </div>
 
 </body>
