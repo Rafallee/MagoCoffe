@@ -1,412 +1,271 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mago Coffee BI</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mago Coffee — Business Intelligence Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
 
-    <div class="container mt-5">
+  <!-- ── Sidebar ──────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">☕</div>
+      <div>
+        <div class="brand-name">Mago Coffee</div>
+        <div class="brand-sub">Business Intelligence</div>
+      </div>
+    </div>
 
-        <h1 class="text-center fw-bold">
-            ☕ Mago Coffee BI Dashboard
-        </h1>
+    <nav class="nav">
+      <a class="nav-item active" data-section="overview" href="#">
+        <span class="nav-icon">◈</span> Overview
+      </a>
+      <a class="nav-item" data-section="menu" href="#">
+        <span class="nav-icon">◉</span> Analisis Menu
+      </a>
+      <a class="nav-item" data-section="trend" href="#">
+        <span class="nav-icon">◈</span> Tren Penjualan
+      </a>
+      <a class="nav-item" data-section="prediksi" href="#">
+        <span class="nav-icon">◉</span> Prediksi Juni–Juli
+      </a>
+      <a class="nav-item" data-section="peak" href="#">
+        <span class="nav-icon">◈</span> Peak Hour
+      </a>
+    </nav>
 
-        <p class="text-center text-muted mb-5">
-            Prediksi Menu Terlaris Menggunakan Linear Regression & Moving Average
-        </p>
+    <div class="sidebar-footer">
+      <div class="periode-badge">
+        <span class="dot"></span>
+        Data: Mei 2026
+      </div>
+      <div class="sidebar-note">Model: Linear Regression<br>Moving Average 7 hari</div>
+    </div>
+  </aside>
 
-        <div class="row g-4">
+  <!-- ── Main Content ─────────────────────────────────────────── -->
+  <main class="main">
 
-            <div class="col-md-3">
-                <div class="card dashboard-card">
-                    <div class="card-body">
-                        <h5>Total Revenue</h5>
-                        <h2>
-                            Rp {{ "{:,.0f}".format(total_revenue) }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
+    <!-- Header -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="page-title" id="page-title">Overview Penjualan</div>
+        <div class="page-sub">Analisis historis April–Mei 2026 · Proyeksi Juni–Juli 2026</div>
+      </div>
+      <div class="topbar-right">
+        <div class="badge-live"><span class="pulse"></span>BI Active</div>
+        <div class="topbar-date">Diperbarui: Mei 2026</div>
+      </div>
+    </header>
 
-            <div class="col-md-3">
-                <div class="card dashboard-card">
-                    <div class="card-body">
-                        <h5>Total Transaksi</h5>
-                        <h2>
-                            {{ "{:,.0f}".format(total_trx) }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
+    <!-- ─ SECTION: OVERVIEW ──────────────────────────────────── -->
+    <section class="section active" id="section-overview">
 
-            <div class="col-md-3">
-                <div class="card dashboard-card">
-                    <div class="card-body">
-                        <h5>Total Item Terjual</h5>
-                        <h2>
-                            {{ "{:,.0f}".format(total_item) }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="card dashboard-card">
-                    <div class="card-body">
-                        <h5>Avg Transaksi</h5>
-                        <h2>
-                            Rp {{ "{:,.0f}".format(avg_trx) }}
-                        </h2>
-                    </div>
-                </div>
-            </div>
-
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card" style="--accent:#C8994A">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value" id="kpi-revenue">—</div>
+          <div class="kpi-sub">Mei 2026</div>
+          <div class="kpi-bar" style="background:var(--accent);width:78%"></div>
         </div>
-
-        <div class="card mt-5 dashboard-card">
-            <div class="card-body">
-
-                <h4>Informasi Project</h4>
-
-                <ul class="text-start">
-                    <li>Analisis Penjualan Menu Mago Coffee</li>
-                    <li>Forecast Menggunakan Linear Regression</li>
-                    <li>Moving Average untuk Tren Penjualan</li>
-                    <li>Business Intelligence Scoring</li>
-                </ul>
-
-            </div>
+        <div class="kpi-card" style="--accent:#4A8BC8">
+          <div class="kpi-label">Total Item Terjual</div>
+          <div class="kpi-value" id="kpi-item">—</div>
+          <div class="kpi-sub">cup / porsi</div>
+          <div class="kpi-bar" style="background:var(--accent);width:65%"></div>
         </div>
-<div class="card mt-4 dashboard-card">
-    <div class="card-body">
+        <div class="kpi-card" style="--accent:#4AC88B">
+          <div class="kpi-label">Total Transaksi</div>
+          <div class="kpi-value" id="kpi-trx">—</div>
+          <div class="kpi-sub">Unique orders</div>
+          <div class="kpi-bar" style="background:var(--accent);width:54%"></div>
+        </div>
+        <div class="kpi-card" style="--accent:#C84A82">
+          <div class="kpi-label">Rata-rata / Transaksi</div>
+          <div class="kpi-value" id="kpi-avg">—</div>
+          <div class="kpi-sub">avg ticket size</div>
+          <div class="kpi-bar" style="background:var(--accent);width:42%"></div>
+        </div>
+      </div>
 
-        <h3 class="mb-4">
-            🏆 Top 10 Menu Terlaris
-        </h3>
+      <!-- Charts row -->
+      <div class="chart-row">
+        <div class="chart-card chart-wide">
+          <div class="chart-header">
+            <div class="chart-title">Tren Revenue Harian</div>
+            <div class="chart-legend">
+              <span class="leg-dot" style="background:#C8994A"></span>Revenue
+              <span class="leg-dot" style="background:#fff;opacity:.5"></span>MA-7
+            </div>
+          </div>
+          <canvas id="chartDaily"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Distribusi Kategori</div>
+          </div>
+          <canvas id="chartKategori"></canvas>
+        </div>
+      </div>
 
-        <table class="table table-striped">
+      <!-- Rekomendasi bisnis -->
+      <div class="insight-grid">
+        <div class="insight-card">
+          <div class="insight-icon">📦</div>
+          <div class="insight-title">Stok Prioritas</div>
+          <div class="insight-text">Pastikan stok bahan baku <strong>Es Kopi Susu</strong> & <strong>Dirty Latte</strong> selalu tersedia — 2 menu ini dominasi 30%+ revenue.</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">🍟</div>
+          <div class="insight-title">Peluang Add-on</div>
+          <div class="insight-text">Dorong penjualan <strong>French Fries Truffle</strong> sebagai paket add-on — tren naik +124% selama Mei.</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">⏰</div>
+          <div class="insight-title">Optimalkan Peak Hour</div>
+          <div class="insight-text">Puncak penjualan di <strong>15:00–18:00</strong>. Siapkan staf lebih & promo khusus jam sore.</div>
+        </div>
+        <div class="insight-card">
+          <div class="insight-icon">🛵</div>
+          <div class="insight-title">Ekspansi Delivery</div>
+          <div class="insight-text">Perluas kanal delivery untuk top 3 menu — potensi revenue tambahan signifikan di luar jam operasional.</div>
+        </div>
+      </div>
+    </section>
 
+    <!-- ─ SECTION: ANALISIS MENU ─────────────────────────────── -->
+    <section class="section" id="section-menu">
+      <div class="chart-row">
+        <div class="chart-card chart-full">
+          <div class="chart-header">
+            <div class="chart-title">Top 15 Menu — Volume Penjualan</div>
+            <div class="chart-legend">
+              <span class="leg-dot" style="background:#C8994A"></span>Top 3
+              <span class="leg-dot" style="background:#8B6A2E"></span>Top 4–6
+              <span class="leg-dot" style="background:#4d3e22"></span>Lainnya
+            </div>
+          </div>
+          <canvas id="chartTop15Vol" height="90"></canvas>
+        </div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-card chart-full">
+          <div class="chart-header">
+            <div class="chart-title">Top 15 Menu — Revenue (juta Rp)</div>
+          </div>
+          <canvas id="chartTop15Rev" height="90"></canvas>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Tabel Lengkap Top 15</div>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="tableMenu">
             <thead>
-                <tr>
-                    <th>Menu</th>
-                    <th>Qty Terjual</th>
-                    <th>Revenue</th>
-                </tr>
+              <tr>
+                <th>#</th>
+                <th>Menu</th>
+                <th>Qty Terjual</th>
+                <th>Revenue</th>
+                <th>% Revenue</th>
+              </tr>
             </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-            <tbody>
+    <!-- ─ SECTION: TREN ──────────────────────────────────────── -->
+    <section class="section" id="section-trend">
+      <div class="chart-card chart-full">
+        <div class="chart-header">
+          <div class="chart-title">Tren Mingguan Top 5 Menu — Mei 2026</div>
+        </div>
+        <canvas id="chartWeekly" height="55"></canvas>
+      </div>
+      <div class="chart-card chart-full" style="margin-top:1.5rem">
+        <div class="chart-header">
+          <div class="chart-title">Revenue Harian + Moving Average 7 Hari</div>
+        </div>
+        <canvas id="chartDailyFull" height="55"></canvas>
+      </div>
+    </section>
 
-                {% for menu in top_menu %}
+    <!-- ─ SECTION: PREDIKSI ──────────────────────────────────── -->
+    <section class="section" id="section-prediksi">
 
-                <tr>
-                    <td>{{ menu['Detail Produk'] }}</td>
-                    <td>{{ menu['jumlah_terjual'] }}</td>
-                    <td>Rp {{ "{:,.0f}".format(menu['total_revenue']) }}</td>
-                </tr>
+      <div class="chart-row">
+        <div class="chart-card chart-wide">
+          <div class="chart-header">
+            <div class="chart-title">Skor Business Intelligence — Top 10 Menu</div>
+            <div class="score-formula">
+              <span>40% Volume</span><span>+ 35% Slope</span><span>+ 25% Growth</span>
+            </div>
+          </div>
+          <canvas id="chartSkor" height="80"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Proyeksi W6 vs W7</div>
+            <div class="chart-sub">Juni 2026</div>
+          </div>
+          <canvas id="chartProyeksi"></canvas>
+        </div>
+      </div>
 
-                {% endfor %}
+      <!-- Prediksi cards -->
+      <div class="pred-grid" id="predGrid"></div>
+    </section>
 
-            </tbody>
+    <!-- ─ SECTION: PEAK HOUR ─────────────────────────────────── -->
+    <section class="section" id="section-peak">
+      <div class="chart-row">
+        <div class="chart-card chart-wide">
+          <div class="chart-header">
+            <div class="chart-title">Revenue per Jam</div>
+            <div class="chart-sub" id="peakLabel">Peak Hour: —</div>
+          </div>
+          <canvas id="chartPeakRev" height="70"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Transaksi per Jam</div>
+          </div>
+          <canvas id="chartPeakTrx"></canvas>
+        </div>
+      </div>
 
-        </table>
+      <!-- Heat band -->
+      <div class="chart-card chart-full">
+        <div class="chart-header">
+          <div class="chart-title">Intensitas Transaksi Harian</div>
+          <div class="chart-sub">Skala warna berdasarkan volume transaksi per jam</div>
+        </div>
+        <div class="heat-row" id="heatRow"></div>
+        <div class="heat-labels" id="heatLabels"></div>
+      </div>
+    </section>
 
+  </main>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+      <div class="loader-ring"></div>
+      <div class="loading-text">Memuat data BI…</div>
     </div>
-</div>
+  </div>
 
-<div class="card mt-4 dashboard-card">
-    <div class="card-body">
-
-        <h3 class="mb-4">
-            📊 Distribusi Kategori
-        </h3>
-
-        <table class="table table-bordered">
-
-            <thead>
-                <tr>
-                    <th>Kategori</th>
-                    <th>Jumlah Terjual</th>
-                    <th>Revenue</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                {% for item in kategori %}
-
-                <tr>
-                    <td>{{ item['Kategori'] }}</td>
-                    <td>{{ item['jumlah_terjual'] }}</td>
-                    <td>Rp {{ "{:,.0f}".format(item['total_revenue']) }}</td>
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-</div>
-
-<div class="card mt-4 dashboard-card">
-    <div class="card-body">
-
-        <h3 class="mb-4">
-            🔮 Prediksi Menu Juni–Juli 2026
-        </h3>
-
-        <table class="table table-striped">
-
-            <thead>
-                <tr>
-                    <th>Menu</th>
-                    <th>Total Mei</th>
-                    <th>Slope</th>
-                    <th>Growth %</th>
-                    <th>W6</th>
-                    <th>W7</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                {% for row in forecast %}
-
-                <tr>
-
-                    <td>{{ row['Menu'] }}</td>
-
-                    <td>{{ row['Total Mei'] }}</td>
-
-                    <td>{{ row['Slope'] }}</td>
-
-                    <td>{{ row['Growth'] }}</td>
-
-                    <td>{{ row['Proyeksi W6'] }}</td>
-
-                    <td>{{ row['Proyeksi W7'] }}</td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-</div>
-
-<div class="card mt-4 dashboard-card">
-
-    <div class="card-body">
-
-        <h3 class="mb-4">
-            🏆 Top 10 BI Score
-        </h3>
-
-        <table class="table table-striped">
-
-            <thead>
-
-                <tr>
-
-                    <th>Menu</th>
-
-                    <th>Total Mei</th>
-
-                    <th>Slope</th>
-
-                    <th>Growth</th>
-
-                    <th>BI Score</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for row in score %}
-
-                <tr>
-
-                    <td>{{ row['Menu'] }}</td>
-
-                    <td>{{ row['Total Mei'] }}</td>
-
-                    <td>{{ row['Slope'] }}</td>
-
-                    <td>{{ row['Growth'] }}</td>
-
-                    <td>
-
-                        <strong>
-
-                            {{ row['Skor BI'] }}
-
-                        </strong>
-
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
-<div class="card mt-4 dashboard-card">
-
-    <div class="card-body">
-
-        <h3>
-            💡 Rekomendasi Bisnis
-        </h3>
-
-        <ul class="text-start">
-
-            {% for item in recommendation %}
-
-            <li>{{ item }}</li>
-
-            {% endfor %}
-
-        </ul>
-
-    </div>
-
-</div>
-
-<div class="card mt-4 dashboard-card">
-
-    <div class="card-body">
-
-        <h3 class="mb-4">
-            ⏰ Peak Hour Analysis
-        </h3>
-
-        <h5>
-            Jam Tersibuk:
-            <strong>{{ peak_hour }}:00</strong>
-        </h5>
-
-        <table class="table table-striped mt-3">
-
-            <thead>
-
-                <tr>
-
-                    <th>Jam</th>
-
-                    <th>Revenue</th>
-
-                    <th>Transaksi</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for row in hourly %}
-
-                <tr>
-
-                    <td>{{ row['Jam'] }}:00</td>
-
-                    <td>
-                        Rp {{ "{:,.0f}".format(row['revenue']) }}
-                    </td>
-
-                    <td>
-                        {{ row['transaksi'] }}
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-
-<div class="card mt-4 dashboard-card">
-
-    <div class="card-body">
-
-        <h3>
-            📈 Tren Mingguan Top 5 Menu
-        </h3>
-
-        <table class="table table-striped">
-
-            <thead>
-
-                <tr>
-
-                    <th>Minggu</th>
-
-                    <th>Es Kopi Susu</th>
-
-                    <th>Dirty Latte</th>
-
-                    <th>Americano (Ice)</th>
-
-                    <th>Matcha Latte</th>
-
-                    <th>French Fries</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                {% for row in weekly_menu %}
-
-                <tr>
-
-                    <td>{{ row['Minggu'] }}</td>
-
-                    <td>{{ row.get('Es Kopi Susu',0) }}</td>
-
-                    <td>{{ row.get('Dirty Latte',0) }}</td>
-
-                    <td>{{ row.get('Americano (Ice)',0) }}</td>
-
-                    <td>{{ row.get('Matcha Latte',0) }}</td>
-
-                    <td>{{ row.get('French Fries with Truffle Oil',0) }}</td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-</div>
-    </div>
-
+  <script src="/static/main.js"></script>
 </body>
 </html>
