@@ -399,14 +399,14 @@ function initPrediksi() {
       labels: top5.map(d => d.menu.split(' ').slice(0,2).join(' ')),
       datasets: [
         {
-          label: 'W6 (Proj)',
-          data: top5.map(d => d.proyeksi_w6),
+          label: 'Juni (Proj)',
+          data: top5.map(d => d.proyeksi_juni),
           backgroundColor: hexAlpha(GOLD, .8),
           borderRadius: 4,
         },
         {
-          label: 'W7 (Proj)',
-          data: top5.map(d => d.proyeksi_w7),
+          label: 'Juli (Proj)',
+          data: top5.map(d => d.proyeksi_juli),
           backgroundColor: hexAlpha(GREEN, .75),
           borderRadius: 4,
         },
@@ -448,12 +448,12 @@ function initPrediksi() {
           <span class="pred-stat-val">${d.growth}%</span>
         </div>
         <div class="pred-stat">
-          <span class="pred-stat-label">Proj W6</span>
-          <span class="pred-stat-val" style="color:${GOLD}">${d.proyeksi_w6}</span>
+          <span class="pred-stat-label">Proj Juni</span>
+          <span class="pred-stat-val" style="color:${GOLD}">${d.proyeksi_juni}</span>
         </div>
         <div class="pred-stat">
-          <span class="pred-stat-label">Proj W7</span>
-          <span class="pred-stat-val" style="color:${GREEN}">${d.proyeksi_w7}</span>
+          <span class="pred-stat-label">Proj Juli</span>
+          <span class="pred-stat-val" style="color:${GREEN}">${d.proyeksi_juli}</span>
         </div>
         <div class="pred-score-bar">
           <div class="pred-score-fill" style="width:${d.skor_bi * 100}%"></div>

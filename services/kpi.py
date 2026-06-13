@@ -1,4 +1,4 @@
-def get_kpi(df):
+def get_kpi_summary(df):
 
     total_revenue = df['Penjualan Bersih'].sum()
     total_item = df['Banyak Penjualan'].sum()

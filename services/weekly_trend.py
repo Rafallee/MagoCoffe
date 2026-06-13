@@ -1,4 +1,4 @@
-def get_weekly_trend(df):
+def get_weekly_top5(df):
 
     TOP5 = [
         'Es Kopi Susu',

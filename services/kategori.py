@@ -1,4 +1,4 @@
-def get_kategori(df):
+def get_kategori_data(df):
 
     return (
         df.groupby('Kategori')

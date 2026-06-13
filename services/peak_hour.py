@@ -1,4 +1,4 @@
-def get_peak_hour(df):
+def get_peak_hour_data(df):
 
     hourly = (
         df.groupby('Jam')
