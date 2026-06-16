@@ -3,6 +3,8 @@ import pandas as pd
 import numpy as np
 import os
 
+from sklearn.linear_model import LinearRegression
+
 app = Flask(__name__)
 
 # ── CONFIG JALUR DATA EXCEL & WEATHER ──
@@ -47,7 +49,18 @@ def muat_dan_proses_data():
         else: return 'W5'
     df['Minggu'] = df.apply(dapatkan_minggu, axis=1)
 
+<<<<<<< HEAD
     # 2. PROSES DATA KPI SUMMARY
+=======
+    # Data mingguan semua menu
+    weekly_sales = (
+        df.groupby(['Minggu', 'Detail Produk'])['Banyak Penjualan']
+        .sum()
+        .unstack(fill_value=0)
+    )
+
+    # 2. PROSES DATA KPI SUMMARY (`s` di main.js)
+>>>>>>> dfd5b0923f4e77d58335c6950689cf1ef1689bac
     total_rev = float(df['Penjualan Bersih'].sum())
     total_item = int(df['Banyak Penjualan'].sum())
     total_trx = int(df['No Transaksi'].nunique())
@@ -135,19 +148,81 @@ def muat_dan_proses_data():
     for idx, row in enumerate(df_all_menu.iterrows()):
         _, rdata = row
         rank = idx + 1
-        skor_bi = max(0.1, min(0.99, 1.0 - (rank * 0.04) + (rdata['Banyak Penjualan'] * 0.002)))
-        slope = int(rdata['Banyak Penjualan'] * 0.05) if rank <= 5 else int(-1 * (rank % 3))
-        growth = int(skor_bi * 25)
-        proj_juni = int(rdata['Banyak Penjualan'] * (1 + (growth/100)))
-        proj_juli = int(proj_juni * 1.05)
+<<<<<<< HEAD
+=======
+
+        menu_name = rdata['Detail Produk']
+
+        if menu_name not in weekly_sales.columns:
+            continue
+
+        y = weekly_sales[menu_name].values.astype(float)
         
+
+        if len(y) < 5:
+            continue
+
+        x = np.array([1,2,3,4,5]).reshape(-1,1)
+
+        model = LinearRegression()
+        model.fit(x,y)
+
+        pred_w6  = max(0, model.predict([[6]])[0])
+        pred_w7  = max(0, model.predict([[7]])[0])
+        pred_w8  = max(0, model.predict([[8]])[0])
+        pred_w9  = max(0, model.predict([[9]])[0])
+
+        pred_w10 = max(0, model.predict([[10]])[0])
+        pred_w11 = max(0, model.predict([[11]])[0])
+        pred_w12 = max(0, model.predict([[12]])[0])
+        pred_w13 = max(0, model.predict([[13]])[0])
+
+        # Total prediksi per bulan
+        proj_juni = int(round(
+            pred_w6 +
+            pred_w7 +
+            pred_w8 +
+            pred_w9
+        ))
+
+        proj_juli = int(round(
+            pred_w10 +
+            pred_w11 +
+            pred_w12 +
+            pred_w13
+        ))
+
+        # BATASI KENAIKAN MAKSIMAL 20%
+        max_growth = 0.20
+
+        max_juni = int(rdata['Banyak Penjualan'] * (1 + max_growth))
+        proj_juni = min(proj_juni, max_juni)
+
+        max_juli = int(proj_juni * (1 + max_growth))
+        proj_juli = min(proj_juli, max_juli)
+
+    
+
+        # Simulasi skor logis & proyeksi linear aman dari volume penjualan asli
+>>>>>>> dfd5b0923f4e77d58335c6950689cf1ef1689bac
+        skor_bi = max(0.1, min(0.99, 1.0 - (rank * 0.04) + (rdata['Banyak Penjualan'] * 0.002)))
+        slope = round(model.coef_[0], 2)
+        growth = 0
+
+        if rdata['Banyak Penjualan'] > 0:
+            growth = (
+                (proj_juni - rdata['Banyak Penjualan'])
+                / rdata['Banyak Penjualan']
+            ) * 100
+
+                
         prediksi_data.append({
             "rank": rank,
             "menu": str(rdata['Detail Produk']),
             "skor_bi": float(skor_bi),
             "total_mei": int(rdata['Banyak Penjualan']),
             "slope": slope,
-            "growth": growth,
+            "growth": round(growth, 2),
             "proyeksi_juni": proj_juni,
             "proyeksi_juli": proj_juli
         })
