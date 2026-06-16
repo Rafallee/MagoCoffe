@@ -23,6 +23,7 @@ def get_daily_trend(df):
 
     return daily
 
+from sklearn.metrics import mean_absolute_percentage_error
 
 def get_forecast(df):
     all_weekly = (
@@ -39,9 +40,22 @@ def get_forecast(df):
         if np.sum(y > 0) < 3:
             continue
 
-        X = np.arange(1, len(y) + 1).reshape(-1, 1)
+        # 5. Kalkulasi Tren Terkini (EMA)
+        # Menggunakan span=3 agar model sensitif terhadap perubahan mendadak di W4-W5
+        # series_y = pd.Series(y)
+        # ema = series_y.ewm(span=3, adjust=False).mean().values
+        
+        # 6. Proyeksi Jangka Pendek (Pangkas horizon hanya untuk W6 & W7)
+        # pred_w6 = max(0, ema[-1])
+        # W7 diberi penalti 5% sebagai buffer keamanan stok (hindari overstock)
+        # pred_w7 = max(0, ema[-1] * 0.95) 
+
+        # ===== LINEAR REGRESSION =====
+
+        x = np.array([1, 2, 3, 4, 5]).reshape(-1, 1)
+
         model = LinearRegression()
-        model.fit(X, y)
+        model.fit(x, y)
 
         slope = model.coef_[0]
 

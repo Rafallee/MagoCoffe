@@ -49,9 +49,6 @@ def muat_dan_proses_data():
         else: return 'W5'
     df['Minggu'] = df.apply(dapatkan_minggu, axis=1)
 
-<<<<<<< HEAD
-    # 2. PROSES DATA KPI SUMMARY
-=======
     # Data mingguan semua menu
     weekly_sales = (
         df.groupby(['Minggu', 'Detail Produk'])['Banyak Penjualan']
@@ -59,8 +56,7 @@ def muat_dan_proses_data():
         .unstack(fill_value=0)
     )
 
-    # 2. PROSES DATA KPI SUMMARY (`s` di main.js)
->>>>>>> dfd5b0923f4e77d58335c6950689cf1ef1689bac
+    # 2. PROSES DATA KPI SUMMARY
     total_rev = float(df['Penjualan Bersih'].sum())
     total_item = int(df['Banyak Penjualan'].sum())
     total_trx = int(df['No Transaksi'].nunique())
@@ -148,8 +144,6 @@ def muat_dan_proses_data():
     for idx, row in enumerate(df_all_menu.iterrows()):
         _, rdata = row
         rank = idx + 1
-<<<<<<< HEAD
-=======
 
         menu_name = rdata['Detail Produk']
 
@@ -204,7 +198,6 @@ def muat_dan_proses_data():
     
 
         # Simulasi skor logis & proyeksi linear aman dari volume penjualan asli
->>>>>>> dfd5b0923f4e77d58335c6950689cf1ef1689bac
         skor_bi = max(0.1, min(0.99, 1.0 - (rank * 0.04) + (rdata['Banyak Penjualan'] * 0.002)))
         slope = round(model.coef_[0], 2)
         growth = 0
