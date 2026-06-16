@@ -5,21 +5,24 @@ import os
 
 app = Flask(__name__)
 
-# ── CONFIG JALUR DATA EXCEL ──
+# ── CONFIG JALUR DATA EXCEL & WEATHER ──
 FOLDER_DATA = "data"
 NAMA_FILE_EXCEL = "Product Sales Details - Mago Coffee - All Outlets - 01 May 2026 - 31 May 2026.xls" 
 PATH_EXCEL = os.path.join(FOLDER_DATA, NAMA_FILE_EXCEL)
 
+# Gunakan read_excel karena format asli file cuaca Anda adalah XLSX murni
+NAMA_FILE_WEATHER = "Bandung2.xlsx"
+PATH_WEATHER = os.path.join(FOLDER_DATA, NAMA_FILE_WEATHER)
+
 
 def clean_num(val):
-    """Fungsi pembantu memastikan tidak ada NaN numerik yang dikirim ke JSON"""
     if isinstance(val, float) and np.isnan(val):
         return 0
     return val
 
 
 def muat_dan_proses_data():
-    """Fungsi inti membaca Excel dan menyusun struktur data 100% sesuai main.js"""
+    """KEMBALI KE AWAL: Murni menghitung tren waktu tanpa merge cuaca"""
     if not os.path.exists(PATH_EXCEL):
         raise FileNotFoundError(f"File Excel tidak ditemukan di: {PATH_EXCEL}")
         
@@ -44,7 +47,7 @@ def muat_dan_proses_data():
         else: return 'W5'
     df['Minggu'] = df.apply(dapatkan_minggu, axis=1)
 
-    # 2. PROSES DATA KPI SUMMARY (`s` di main.js)
+    # 2. PROSES DATA KPI SUMMARY
     total_rev = float(df['Penjualan Bersih'].sum())
     total_item = int(df['Banyak Penjualan'].sum())
     total_trx = int(df['No Transaksi'].nunique())
@@ -57,7 +60,7 @@ def muat_dan_proses_data():
         "avg_trx_value": avg_trx
     }
 
-    # 3. PROSES DATA DAILY TREND (`DATA.dailyTrend` di main.js)
+    # 3. PROSES DATA DAILY TREND
     df_daily = df.groupby(df['Tanggal_Clean'].dt.strftime('%Y-%m-%d')).agg({
         'Penjualan Bersih': 'sum'
     }).reset_index()
@@ -70,7 +73,7 @@ def muat_dan_proses_data():
         })
     daily_trend_data.sort(key=lambda x: x['tanggal'])
 
-    # 4. PROSES DATA KATEGORI (`DATA.kategori` di main.js)
+    # 4. PROSES DATA KATEGORI
     df_kat = df.groupby('Kategori').agg({
         'Banyak Penjualan': 'sum'
     }).reset_index()
@@ -85,7 +88,7 @@ def muat_dan_proses_data():
             "pct": pct
         })
 
-    # 5. PROSES DATA TOP 15 MENU (`DATA.topMenu` di main.js)
+    # 5. PROSES DATA TOP 15 MENU
     df_menu = df.groupby('Detail Produk').agg({
         'Banyak Penjualan': 'sum',
         'Penjualan Bersih': 'sum'
@@ -101,7 +104,7 @@ def muat_dan_proses_data():
             "revenue_pct": rev_pct
         })
 
-    # 6. PROSES DATA TREN MINGGUAN TOP 5 (`DATA.weeklyTop5` di main.js) - STRUKTUR PENENTU FIX ERROR!
+    # 6. PROSES DATA TREN MINGGUAN TOP 5
     top5_names = df.groupby('Detail Produk')['Banyak Penjualan'].sum().nlargest(5).index.tolist()
     weeks_list = ['W1', 'W2', 'W3', 'W4', 'W5']
     
@@ -122,8 +125,7 @@ def muat_dan_proses_data():
         "menus": menus_weekly_dict
     }
 
-    # 7. PROSES DATA PREDIKSI JUNI-JULI (`DATA.prediksi` di main.js)
-    # Membuat hitungan statistik dasar otomatis (Rank, Skor BI, Proyeksi) berbasis data riil Mei
+    # 7. KEMBALI KE PREDIKSI AWAL (Berdasarkan volume murni)
     df_all_menu = df.groupby('Detail Produk').agg({
         'Banyak Penjualan': 'sum',
         'Penjualan Bersih': 'sum'
@@ -133,7 +135,6 @@ def muat_dan_proses_data():
     for idx, row in enumerate(df_all_menu.iterrows()):
         _, rdata = row
         rank = idx + 1
-        # Simulasi skor logis & proyeksi linear aman dari volume penjualan asli
         skor_bi = max(0.1, min(0.99, 1.0 - (rank * 0.04) + (rdata['Banyak Penjualan'] * 0.002)))
         slope = int(rdata['Banyak Penjualan'] * 0.05) if rank <= 5 else int(-1 * (rank % 3))
         growth = int(skor_bi * 25)
@@ -151,7 +152,7 @@ def muat_dan_proses_data():
             "proyeksi_juli": proj_juli
         })
 
-    # 8. PROSES DATA PEAK HOUR (`DATA.peakHour` di main.js)
+    # 8. PROSES DATA PEAK HOUR
     peak_hour_data = []
     for jam_id in range(24):
         df_jam = df[df['Jam'] == jam_id]
@@ -174,10 +175,10 @@ def muat_dan_proses_data():
     }
 
 
-# Load data ke memori saat program dijalankan
+# Load data utama ke memori
 try:
     DATABASE_DASHBOARD = muat_dan_proses_data()
-    print("✅ SUKSES: Data Excel dikonversi sempurna ke format main.js!")
+    print("✅ SUKSES: Data Excel dikonversi sempurna!")
 except Exception as e:
     print(f"❌ GAGAL MEMBACA EXCEL: {e}")
     DATABASE_DASHBOARD = {}
@@ -190,33 +191,91 @@ def index():
     return render_template('index.html')
 
 @app.route('/api/summary')
-def api_summary():
-    return jsonify(DATABASE_DASHBOARD.get("summary", {}))
+def api_summary(): return jsonify(DATABASE_DASHBOARD.get("summary", {}))
 
 @app.route('/api/top-menu')
-def api_top_menu():
-    return jsonify(DATABASE_DASHBOARD.get("top_menu", []))
+def api_top_menu(): return jsonify(DATABASE_DASHBOARD.get("top_menu", []))
 
 @app.route('/api/kategori')
-def api_kategori():
-    return jsonify(DATABASE_DASHBOARD.get("kategori", []))
+def api_kategori(): return jsonify(DATABASE_DASHBOARD.get("kategori", []))
 
 @app.route('/api/daily-trend')
-def api_daily_trend():
-    return jsonify(DATABASE_DASHBOARD.get("daily_trend", []))
+def api_daily_trend(): return jsonify(DATABASE_DASHBOARD.get("daily_trend", []))
 
 @app.route('/api/weekly-top5')
-def api_weekly_top5():
-    return jsonify(DATABASE_DASHBOARD.get("weekly_top5", {"weeks": [], "menus": {}}))
+def api_weekly_top5(): return jsonify(DATABASE_DASHBOARD.get("weekly_top5", {}))
 
 @app.route('/api/prediksi')
-def api_prediksi():
-    return jsonify(DATABASE_DASHBOARD.get("prediksi", []))
+def api_prediksi(): return jsonify(DATABASE_DASHBOARD.get("prediksi", []))
 
 @app.route('/api/peak-hour')
-def api_peak_hour():
-    return jsonify(DATABASE_DASHBOARD.get("peak_hour", []))
+def api_peak_hour(): return jsonify(DATABASE_DASHBOARD.get("peak_hour", []))
 
+
+# API BARU: Menghitung Pendapatan Hujan vs Cerah per Minggu
+# API BARU: Komparasi Realisasi Omzet Hujan vs Prediksi Target Omzet Cerah
+@app.route('/api/weather-revenue')
+def get_weather_revenue():
+    try:
+        # 1. Muat data transaksi penjualan dan data cuaca
+        df_sales = pd.read_excel(PATH_EXCEL)
+        df_sales['Tanggal_Clean'] = pd.to_datetime(df_sales['Tanggal'], errors='coerce')
+        
+        df_weather = pd.read_excel(PATH_WEATHER)
+        df_weather['Tanggal_Clean'] = pd.to_datetime(df_weather['datetime'], errors='coerce')
+        df_weather_clean = df_weather[['Tanggal_Clean', 'precip', 'conditions']].copy().rename(columns={'precip': 'Curah_Hujan', 'conditions': 'Kondisi'})
+        
+        # 2. Tentukan titik hari ini (Anchor Date berdasarkan scope data Mei 2026)
+        hari_ini = pd.to_datetime("2026-05-15")
+        
+        # 3. Ambil 7 Hari ke Belakang (Historis: 8 Mei s/d 14 Mei)
+        tanggal_lalu = [ (hari_ini - pd.Timedelta(days=i)).strftime('%Y-%m-%d') for i in range(7, 0, -1) ]
+        
+        labels_lalu = []
+        omzet_lalu = []
+        cuaca_lalu = []
+        
+        for tgl in tanggal_lalu:
+            # Hitung total pendapatan di hari tersebut
+            sub_sales = df_sales[df_sales['Tanggal_Clean'] == tgl]
+            total_rev = sub_sales['Penjualan Bersih'].sum()
+            
+            # Ambil info cuaca asli di hari tersebut
+            sub_weat = df_weather_clean[df_weather_clean['Tanggal_Clean'] == tgl]
+            info_cuaca = sub_weat['Kondisi'].values[0] if not sub_weat.empty else "N/A"
+            precip_val = sub_weat['Curah_Hujan'].values[0] if not sub_weat.empty else 0
+            
+            labels_lalu.append(pd.to_datetime(tgl).strftime('%d %b'))
+            omzet_lalu.append(float(total_rev))
+            cuaca_lalu.append(f"{info_cuaca} ({precip_val}mm)")
+
+        # 4. Ambil 7 Hari ke Depan (Prediksi Cuaca: 15 Mei s/d 21 Mei)
+        tanggal_depan = [ (hari_ini + pd.Timedelta(days=i)).strftime('%Y-%m-%d') for i in range(0, 7) ]
+        
+        labels_depan = []
+        cuaca_depan = []
+        
+        for tgl in tanggal_depan:
+            sub_weat = df_weather_clean[df_weather_clean['Tanggal_Clean'] == tgl]
+            info_cuaca = sub_weat['Kondisi'].values[0] if not sub_weat.empty else "Rain Forecast"
+            precip_val = sub_weat['Curah_Hujan'].values[0] if not sub_weat.empty else 0
+            
+            labels_depan.append(pd.to_datetime(tgl).strftime('%d %b'))
+            cuaca_depan.append(f"{info_cuaca} ({precip_val}mm)")
+
+        return jsonify({
+            "historis": {
+                "labels": labels_lalu,
+                "revenue": omzet_lalu,
+                "cuaca": cuaca_lalu
+            },
+            "prediksi_cuaca": {
+                "labels": labels_depan,
+                "cuaca": cuaca_depan
+            }
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)

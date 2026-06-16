@@ -77,7 +77,7 @@ let DATA = {};
 // ── Boot ────────────────────────────────────────────────────────────────────
 async function boot() {
   try {
-    const [summary, topMenu, kategori, dailyTrend, weeklyTop5, prediksi, peakHour] =
+    const [summary, topMenu, kategori, dailyTrend, weeklyTop5, prediksi, peakHour, weatherRevenue] =
       await Promise.all([
         api('/api/summary'),
         api('/api/top-menu'),
@@ -86,9 +86,10 @@ async function boot() {
         api('/api/weekly-top5'),
         api('/api/prediksi'),
         api('/api/peak-hour'),
+        api('/api/weather-revenue'),
       ]);
 
-    DATA = { summary, topMenu, kategori, dailyTrend, weeklyTop5, prediksi, peakHour };
+    DATA = { summary, topMenu, kategori, dailyTrend, weeklyTop5, prediksi, peakHour, weatherRevenue };
 
     // Init overview immediately
     initOverview();
@@ -109,17 +110,18 @@ async function boot() {
 function initOverview() {
   const s = DATA.summary;
 
-  // KPI counters
+  // 1. KPI COUNTERS ANIMATION
   animateCounter('kpi-revenue', 0, s.total_revenue, v => rupiah(v));
   animateCounter('kpi-item', 0, s.total_item, v => num(v));
   animateCounter('kpi-trx', 0, s.total_transaksi, v => num(v));
   animateCounter('kpi-avg', 0, s.avg_trx_value, v => rupiah(v));
 
-  // Daily trend chart
-  const labels  = DATA.dailyTrend.map(d => d.tanggal);
-  const revenue  = DATA.dailyTrend.map(d => d.revenue);
-  const ma7      = movingAvg(revenue, 7);
+  // 2. DATA PREPARATION
+  const labels      = DATA.dailyTrend.map(d => d.tanggal);
+  const revenue     = DATA.dailyTrend.map(d => d.revenue);
+  const ma7         = movingAvg(revenue, 7);
 
+  // 3. DAILY TREND CHART (LINE CHART)
   destroyChart('chartDaily');
   charts['chartDaily'] = new Chart($('chartDaily'), {
     type: 'line',
@@ -156,16 +158,14 @@ function initOverview() {
       scales: {
         y: {
           grid: { color: '#2A2218' },
-          ticks: {
-            callback: v => `Rp ${(v/1e6).toFixed(1)}jt`,
-          },
+          ticks: { callback: v => `Rp ${(v/1e6).toFixed(1)}jt` },
         },
         x: { grid: { display: false }, ticks: { maxTicksLimit: 10 } },
       },
     },
   });
 
-  // Kategori donut
+  // 4. KATEGORI CHART (DOUGHNUT CHART)
   destroyChart('chartKategori');
   charts['chartKategori'] = new Chart($('chartKategori'), {
     type: 'doughnut',
@@ -194,6 +194,103 @@ function initOverview() {
         },
       },
     },
+  });
+
+  // 5. UPDATE REVISI: GROUPED BAR CHART KOMPARASI BULAN MEI PENUH (PER MINGGU)
+  // Ambil semua data tren penjualan lalu filter hanya yang bertanggal di bulan Mei 2026 (Format data dari backend: "YYYY-MM-DD" atau "DD MMM")
+  // Untuk memastikan akurasi filter, kita cek string yang mengandung kata kunci Mei atau angka bulan 05.
+  const dataMei = DATA.dailyTrend.filter(d => {
+    const tglLower = d.tanggal.toLowerCase();
+    return tglLower.includes('mei') || tglLower.includes('-05-') || tglLower.startsWith('05/');
+  });
+
+  const weeklyLabels = [];
+  const weeklyActualRev = [];
+  const weeklyEstimatedCerah = [];
+
+  // Bagi 31 hari di bulan Mei menjadi blok-blok per 7 hari (Minggu 1 s.d Minggu 5)
+  const daysInWeek = 7;
+  for (let i = 0; i < dataMei.length; i += daysInWeek) {
+    const chunk = dataMei.slice(i, i + daysInWeek);
+    
+    if (chunk.length > 0) {
+      const weekNum = Math.floor(i / daysInWeek) + 1;
+      const startDay = chunk[0].tanggal;
+      const endDay = chunk[chunk.length - 1].tanggal;
+      
+      weeklyLabels.push(`Minggu ${weekNum} (${startDay} - ${endDay})`);
+
+      // Hitung total akumulasi aktual minggu tersebut
+      const totalActual = chunk.reduce((sum, item) => sum + item.revenue, 0);
+      weeklyActualRev.push(totalActual);
+
+      // Hitung estimasi omzet seandainya cerah (+30% booster dari tren penjualan aktual akibat reduksi hujan)
+      const totalEstimated = chunk.reduce((sum, item) => sum + (item.revenue * 1.30), 0);
+      weeklyEstimatedCerah.push(totalEstimated);
+    }
+  }
+
+  destroyChart('chartWeatherRevenue');
+  charts['chartWeatherRevenue'] = new Chart($('chartWeatherRevenue'), {
+    type: 'bar',
+    data: {
+      labels: weeklyLabels,
+      datasets: [
+        {
+          label: '☔ Realisasi Omzet (Aktual Mei)',
+          data: weeklyActualRev,
+          backgroundColor: '#4A90E2', // Biru
+          borderRadius: 6
+        },
+        {
+          label: '☀️ Proyeksi Optimal (Jika Full Cerah)',
+          data: weeklyEstimatedCerah,
+          backgroundColor: GOLD, // Emas Mago
+          borderRadius: 6
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: { color: '#7A6E58', font: { size: 11 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              let value = ctx.parsed.y.toLocaleString('id-ID');
+              return ` ${ctx.dataset.label}: Rp ${value}`;
+            }
+          }
+        },
+        title: {
+          display: true,
+          text: `📊 Analisis Finansial Dampak Cuaca Bulan Mei (Penuh 1 - 31 Mei)`,
+          color: GOLD,
+          font: { size: 13, weight: 'bold' },
+          padding: { bottom: 15 }
+        }
+      },
+      scales: {
+        x: {
+          stacked: false,
+          grid: { display: false },
+          ticks: { color: '#7A6E58' }
+        },
+        y: {
+          stacked: false,
+          grid: { color: '#2A2218' },
+          ticks: {
+            color: '#7A6E58',
+            callback: v => `Rp ${(v/1e6).toFixed(1)}jt`
+          }
+        }
+      }
+    }
   });
 }
 

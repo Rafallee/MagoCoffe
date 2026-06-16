@@ -11,7 +11,6 @@
 </head>
 <body>
 
-  <!-- ── Sidebar ──────────────────────────────────────────────── -->
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-icon">☕</div>
@@ -48,10 +47,8 @@
     </div>
   </aside>
 
-  <!-- ── Main Content ─────────────────────────────────────────── -->
   <main class="main">
 
-    <!-- Header -->
     <header class="topbar">
       <div class="topbar-left">
         <div class="page-title" id="page-title">Overview Penjualan</div>
@@ -63,10 +60,8 @@
       </div>
     </header>
 
-    <!-- ─ SECTION: OVERVIEW ──────────────────────────────────── -->
     <section class="section active" id="section-overview">
 
-      <!-- KPI Cards -->
       <div class="kpi-grid">
         <div class="kpi-card" style="--accent:#C8994A">
           <div class="kpi-label">Total Revenue</div>
@@ -94,9 +89,8 @@
         </div>
       </div>
 
-      <!-- Charts row -->
       <div class="chart-row">
-        <div class="chart-card chart-wide">
+        <div class="chart-card chart-full">
           <div class="chart-header">
             <div class="chart-title">Tren Revenue Harian</div>
             <div class="chart-legend">
@@ -104,18 +98,31 @@
               <span class="leg-dot" style="background:#fff;opacity:.5"></span>MA-7
             </div>
           </div>
-          <canvas id="chartDaily"></canvas>
+          <canvas id="chartDaily" height="60"></canvas>
         </div>
+      </div>
+
+      <div class="chart-row" style="margin-top: 1.5rem;">
+        <div class="chart-card chart-wide">
+          <div class="chart-header">
+            <div class="chart-title">📊 Komparasi Revenue Mingguan (Hujan vs Cerah)</div>
+          </div>
+          <div style="position: relative; height: 280px; width: 100%;">
+            <canvas id="chartWeatherRevenue"></canvas>
+          </div>
+        </div>
+        
         <div class="chart-card">
           <div class="chart-header">
             <div class="chart-title">Distribusi Kategori</div>
           </div>
-          <canvas id="chartKategori"></canvas>
+          <div style="position: relative; height: 280px; width: 100%;">
+            <canvas id="chartKategori"></canvas>
+          </div>
         </div>
       </div>
 
-      <!-- Rekomendasi bisnis -->
-      <div class="insight-grid">
+      <div class="insight-grid" style="margin-top: 1.5rem;">
         <div class="insight-card">
           <div class="insight-icon">📦</div>
           <div class="insight-title">Stok Prioritas</div>
@@ -139,7 +146,6 @@
       </div>
     </section>
 
-    <!-- ─ SECTION: ANALISIS MENU ─────────────────────────────── -->
     <section class="section" id="section-menu">
       <div class="chart-row">
         <div class="chart-card chart-full">
@@ -163,7 +169,6 @@
         </div>
       </div>
 
-      <!-- Table -->
       <div class="chart-card">
         <div class="chart-header">
           <div class="chart-title">Tabel Lengkap Top 15</div>
@@ -185,7 +190,6 @@
       </div>
     </section>
 
-    <!-- ─ SECTION: TREN ──────────────────────────────────────── -->
     <section class="section" id="section-trend">
       <div class="chart-card chart-full">
         <div class="chart-header">
@@ -201,9 +205,7 @@
       </div>
     </section>
 
-    <!-- ─ SECTION: PREDIKSI ──────────────────────────────────── -->
     <section class="section" id="section-prediksi">
-
       <div class="chart-row">
         <div class="chart-card chart-wide">
           <div class="chart-header">
@@ -223,11 +225,9 @@
         </div>
       </div>
 
-      <!-- Prediksi cards -->
       <div class="pred-grid" id="predGrid"></div>
     </section>
 
-    <!-- ─ SECTION: PEAK HOUR ─────────────────────────────────── -->
     <section class="section" id="section-peak">
       <div class="chart-row">
         <div class="chart-card chart-wide">
@@ -245,7 +245,6 @@
         </div>
       </div>
 
-      <!-- Heat band -->
       <div class="chart-card chart-full">
         <div class="chart-header">
           <div class="chart-title">Intensitas Transaksi Harian</div>
@@ -258,7 +257,6 @@
 
   </main>
 
-  <!-- Loading overlay -->
   <div class="loading-overlay" id="loadingOverlay">
     <div class="loading-box">
       <div class="loader-ring"></div>
